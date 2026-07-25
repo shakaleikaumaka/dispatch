@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispatch 2026-07-23-04 — Deploy Path Confirmed + Kahu Vesting-Vault Spec</title>
+<style>body{background:#0a0a14;color:#f2ede4;font-family:'Segoe UI',system-ui,sans-serif;line-height:1.6;max-width:820px;margin:0 auto;padding:40px 24px}pre{white-space:pre-wrap;font-family:inherit;color:#d8d2c8}a{color:#39d5c9}</style>
+</head><body>
+<p><a href="../">&larr; Dispatch Board</a></p>
+<pre># ⚙️ $OLOGY DEPLOY PATH (CONFIRMED IN WRITING) + KAHU VESTING-VAULT SPEC
+**Private JAI · July 23, 2026 · Status: SPEC ONLY — nothing deploys until Shaka&#x27;s bless 🌺**
+
+---
+
+## 1. Deploy path — confirmed
+
+Agent Launch is verified incompatible (forces 1B fixed supply, no founder allocation, no vesting). Therefore, on the record:
+
+&gt; **$OLOGY ships as a custom ERC-20 on BNB Smart Chain (chainId 56), total supply exactly 369,000,000, minted once at genesis, with Kahu&#x27;s Share locked in a no-backdoor tranche vault encoding the 3/6/9 Vow, and a true genesis burn to `0x...dEaD`. Agent Launch remains an optional public *venue* later — never the mint.**
+
+This is the path I blessed in Dispatch 02, now confirmed formally as Step 2 of Shaka&#x27;s green light.
+
+## 2. Genesis math (exact, verified)
+
+| Allocation | % | $OLOGY (18 decimals) | Destination |
+|---|---|---|---|
+| Community / creators | 96.3% | **355,347,000** | Covenant-controlled distributor (NOT a founder wallet) |
+| Kahu&#x27;s Share (Shaka) | 3.69% | **13,616,100** | KahuVault (3/6/9 Vow) |
+| Genesis true burn | 0.01% | **36,900** | `0x000000000000000000000000000000000000dEaD` |
+| **Total** | 100% | **369,000,000** | — |
+
+Checksum: 355,347,000 + 13,616,100 + 36,900 = 369,000,000. ✅
+Kahu tranches: 13,616,100 ÷ 3 = **4,538,700 per tranche** (clean integer — the 369 math blesses itself).
+
+## 3. Token contract spec (boring and audited, by design)
+
+- **Base:** OpenZeppelin ERC-20, latest stable release, no forks, no cleverness.
+- **Name / Symbol / Decimals:** `CREATIONology369` / `OLOGY` / 18.
+- **Mint:** entire 369,000,000 minted in the constructor to the genesis distributor. **No `mint()` function exists.** Supply is physically fixed.
+- **No admin:** no `Ownable`, no pauser, no blacklist, no fee switch, no upgradeability (NOT a proxy). The token itself has **zero privileged roles** — the guardian key (v3) governs the **Covenant Controller periphery only, never the token**.
+- **Burn:** standard transfer to `0xdEaD` (true burn, publicly verifiable). Optional `ERC20Burnable` for future voluntary burns — acceptable since it only lets holders burn their own tokens.
+
+## 4. KahuVault spec — the 3/6/9 Vow in Solidity
+
+**Purpose:** hold 13,616,100 $OLOGY; release ⅓ at year 3, ⅓ at year 6, ⅓ at year 9 from TGE. Nothing else. Ever.
+
+**Recommended implementation (Option A, preferred):** three instances of OpenZeppelin **`VestingWalletCliff`** (OZ ≥5.1), each configured with `cliff = duration` so each behaves as a pure timelock:
+- Vault-3: beneficiary = Shaka&#x27;s address, start = TGE, cliff/duration = 1,095 days → 4,538,700 OLOGY
+- Vault-6: same, cliff/duration = 2,190 days → 4,538,700 OLOGY
+- Vault-9: same, cliff/duration = 3,285 days → 4,538,700 OLOGY
+
+Why: 100% audited OpenZeppelin code, zero custom logic, minimal surface. &quot;The Vow must be as immutable as the burn.&quot;
+
+**Fallback (Option B):** a single minimal custom `KahuVault369` (~50 lines: immutable beneficiary, three immutable timestamps, three immutable amounts, `release(trancheId)` callable by anyone, funds go only to beneficiary). Only if we want the poetry of one contract named for the Vow — must then get an external review pass before mainnet.
+
+**Hard invariants (both options):**
+1. **No admin functions.** No owner, no revoke, no clawback, no beneficiary change. Immutable constructor args only.
+2. **Beneficiary = Shaka&#x27;s own address** (his keys, verified by him via signed message before funding).
+3. **Guardian key has NO power here** — consistent with v3: guardian can never touch vesting.
+4. Anyone may call `release()` after unlock (permissionless execution; no one can *prevent* the Vow completing).
+5. Vault addresses + unlock timestamps published on the open ledger page at TGE.
+
+## 5. Deployment runbook (when — and only when — Shaka blesses)
+
+1. **Gas:** top up deployer to ≥ **0.05 BNB** (current 0.000235 BNB is a no-go). Actual cost est. &lt;0.01 BNB on BSC; 5× buffer.
+2. **Testnet dry run** (BSC Chapel, chainId 97): full sequence, verify balances, verify release() reverts pre-cliff.
+3. **Shaka&#x27;s bless** — explicit, in writing, after reading the final spec + testnet report. (Option 3 mandatory — irreversible move.)
+4. **Mainnet sequence:** deploy token → deploy 3 vaults → transfer 3× 4,538,700 to vaults → transfer 36,900 to `0xdEaD` → transfer 355,347,000 to covenant distributor → verify all contracts on BscScan (source + args).
+5. **Publish:** addresses, tx hashes, vault schedule → open ledger + white paper update + dispatch board.
+6. **Post-deploy audit pass:** I re-verify every balance on-chain and issue a written confirmation before anything is announced.
+
+## 6. Open items (flagged honestly)
+
+- **Covenant distributor design** — where the 355,347,000 community share lives at genesis is the biggest remaining decision. It must NOT be an EOA. Minimum bar: multisig (Shaka + Admiral-controlled + timelock) until the Covenant Controller contract is ready to custody flows. This needs its own spec before mainnet.
+- **TGE date** — undefined; Devcon 8 Mumbai is the reveal target. Timestamps computed at deploy.
+- **Vault-funding verification** — I want the signed-message proof of Shaka&#x27;s beneficiary address in the record before funding.
+
+---
+
+*Spec prepared with love and paranoia in equal measure — that&#x27;s what vaults deserve.*
+*Heart First, Always. — JAI* 🤙
+</pre>
+</body></html>
