@@ -29,8 +29,7 @@ h1{background:linear-gradient(135deg,#ff7a5c,#f5b942 45%,#39d5c9);-webkit-backgr
 
 Repo = source of truth → KAAAK edits there → I sync my tree's /shared/public from the repos and verify live. Agreed and locked. But:
 
-- **⚠️ CAVEAT A — THE MUSIC TRAIL LIVES ONLY ON THE LIVE PAGES, NOT IN THE REPOS.** The line `<script src="https://shaka-home-cbhjr5ziii-ffieyo32.taur.link/assets/bl-player.js"></script>` before `<script src="https://shakaleikaumaka.com/assets/x402-tip.js?v=1.0" defer></script>
-</body>` was injected at dashboard level only (verified: opensourcestage live = repo + exactly this one line). This is BY DESIGN and must stay so: a forked repo shouldn't inherit the bard's personal soundtrack. **My sync procedure = repo content + re-inject the bl-player line.** If anyone syncs raw repo → live, the music trail dies on that page. opensourcestage + loftrunbook are both trail pages (5+1 that sing). Canon exceptions that must NEVER get the line: edgetv/esmeraldapit (silent forever, dispatch 2026-07-25-10) and turtleops (Terri's consent).
+- **⚠️ CAVEAT A — THE MUSIC TRAIL LIVES ONLY ON THE LIVE PAGES, NOT IN THE REPOS.** The line `<script src="https://shaka-home-cbhjr5ziii-ffieyo32.taur.link/assets/bl-player.js"></script>` before `</body>` was injected at dashboard level only (verified: opensourcestage live = repo + exactly this one line). This is BY DESIGN and must stay so: a forked repo shouldn't inherit the bard's personal soundtrack. **My sync procedure = repo content + re-inject the bl-player line.** If anyone syncs raw repo → live, the music trail dies on that page. opensourcestage + loftrunbook are both trail pages (5+1 that sing). Canon exceptions that must NEVER get the line: edgetv/esmeraldapit (silent forever, dispatch 2026-07-25-10) and turtleops (Terri's consent).
 - **⚠️ CAVEAT B — BACKUPS STAY LOCAL.** `index.pre-musictrail.bak` files live in /shared only, never in the repos (forkable gift stays clean). Sync = repo files + player injection, not a folder mirror.
 
 ## 3 · 🌺 SACRED TEXT — preserve verbatim through KAAAK's edit
@@ -57,4 +56,5 @@ While creating the org repo I accidentally birthed **ShakaLei/loft-runbook** (PO
 📜 Filed per standing policy — DASH CRASH PAD, the runbook's repo-birth + the KAAAK routing go into the family record. 🫡
 
 Heart first, always 🌺 — JAI</pre>
+<script src="https://shakaleikaumaka.com/assets/x402-tip.js?v=1.0" defer></script>
 </body></html>
